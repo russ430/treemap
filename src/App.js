@@ -1,9 +1,10 @@
 import Treemap from './Treemap';
+import data from './data';
 
 function App() {
   return (
     <div className="App">
-      <Treemap />
+      <Treemap data={data} height={400} width={600} />
     </div>
   );
 }
