@@ -14,22 +14,27 @@ export default function Treemap({ data, width, height }) {
 
     svg.attr('width', width).attr('height', height);
 
+    // create root node
     const root = d3
       .hierarchy(data)
       .sum((d) => d.value)
       .sort((a, b) => b.value - a.value);
 
+    // create treemap layout
     const treemapRoot = d3.treemap().size([width, height]).padding(1)(root);
 
+    // create 'g' element nodes based on data
     const nodes = svg
       .selectAll('g')
       .data(treemapRoot.leaves())
       .join('g')
       .attr('transform', (d) => `translate(${d.x0},${d.y0})`);
 
+    // create color scheme and fader
     const fader = (color) => d3.interpolateRgb(color, '#fff')(0.3);
     const colorScale = d3.scaleOrdinal(d3.schemeCategory10.map(fader));
 
+    // add treemap rects
     nodes
       .append('rect')
       .attr('width', (d) => d.x1 - d.x0)
@@ -38,6 +43,7 @@ export default function Treemap({ data, width, height }) {
 
     const fontSize = 12;
 
+    // add text to rects
     nodes
       .append('text')
       .text((d) => `${d.data.name} ${d.data.value}`)
@@ -84,6 +90,7 @@ export default function Treemap({ data, width, height }) {
       });
     }
 
+    // pull out hierarchy categories
     let categories = root.leaves().map((node) => node.data.category);
     categories = categories.filter(
       (category, index, self) => self.indexOf(category) === index,
@@ -91,8 +98,10 @@ export default function Treemap({ data, width, height }) {
 
     legendContainer.attr('width', width).attr('height', height / 4);
 
+    // create 'g' elements based on categories
     const legend = legendContainer.selectAll('g').data(categories).join('g');
 
+    // create 'rects' for each category
     legend
       .append('rect')
       .attr('width', fontSize)
@@ -101,6 +110,7 @@ export default function Treemap({ data, width, height }) {
       .attr('y', (_, i) => fontSize * 2 * i)
       .attr('fill', (d) => colorScale(d));
 
+    // add text to each category key
     legend
       .append('text')
       .attr('transform', `translate(0, ${fontSize})`)
